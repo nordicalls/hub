@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nordicalls.</title>
+    <link rel="icon" type="image/png" href="https://www.transparentpng.com/download/emoticons/thinking-blue-emoticons-hd-transparent-1b3uLJ.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+        <!-- EMBEDS -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nordicalls.xyz">
+    <meta property="og:title" content="nordicalls">
+    <meta property="og:description" content="Minimalist ecosystem for high-speed communication, dev tracking, and live status.">
+    <meta name="theme-color" content="#030303">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="nordicalls">
+    <meta name="twitter:description" content="Minimalist ecosystem for high-speed communication and dev tracking.">
+    <meta name="twitter:image" content="https://bluemoji.io/cdn-proxy/646218c67da47160c64a84d5/671ff8b58b0b4715228b0c1f_99.png">
+
+
+    <style>
+        :root {
+            --accent: #467983;
+            --bg: #050505;
+            --surface: #0a0a0a;
+            --border: rgba(255, 255, 255, 0.06);
+            --ease-butter: cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #d4d4d4;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
+
+        .bg-grid {
+            position: fixed; inset: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black, transparent 80%);
+            z-index: -1; pointer-events: none;
+        }
+
+        /* --- Navigation --- */
+        .nav-fixed { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 1000; }
+        .nav-container {
+            display: flex; align-items: center; gap: 4px;
+            background: rgba(10, 10, 10, 0.75); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); padding: 6px; border-radius: 100px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .nav-logo { font-weight: 800; font-size: 13px; color: #fff; padding: 0 16px; border-right: 1px solid var(--border); }
+        .nav-tabs { position: relative; display: flex; gap: 2px; }
+        
+        #nav-pill {
+            position: absolute; height: 100%; top: 0;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 100px; transition: all 0.6s var(--ease-butter);
+            z-index: 0; pointer-events: none;
+        }
+
+        .nav-btn {
+            position: relative; z-index: 1; padding: 8px 18px; font-size: 12px; font-weight: 600;
+            color: #555; transition: color 0.4s var(--ease-butter); border-radius: 100px;
+        }
+        .nav-btn.active { color: var(--accent); }
+        .nav-btn:hover:not(.active) { color: #aaa; }
+
+        .nav-socials { display: flex; gap: 2px; padding-left: 8px; margin-left: 4px; border-left: 1px solid var(--border); align-items: center; }
+        .social-btn { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #444; transition: 0.3s; }
+        .social-btn:hover { color: #fff; transform: translateY(-2px); }
+
+        /* --- Tab System (The Butter Logic) --- */
+        .page-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 140px;
+        }
+
+        .page-wrap { 
+            grid-area: 1 / 1;
+            opacity: 0; 
+            transform: translateY(30px); 
+            pointer-events: none;
+            transition: opacity 0.6s var(--ease-butter), transform 0.6s var(--ease-butter);
+            padding: 0 24px;
+            width: 100%;
+        }
+
+        .page-wrap.active { 
+            opacity: 1; 
+            transform: translateY(0); 
+            pointer-events: auto; 
+            z-index: 10;
+        }
+
+        /* --- Content Styling --- */
+        .grid-master { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 24px; padding: 32px; position: relative; overflow: hidden;
+            transition: 0.5s var(--ease-butter); cursor: pointer;
+        }
+        .card:hover { border-color: #333; transform: translateY(-6px); box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
+
+        .card-tag { font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 8px; display: block; }
+        .stat-num { font-size: 4rem; font-weight: 800; color: #fff; letter-spacing: -3px; line-height: 1; }
+        .stat-watermark {
+            position: absolute; bottom: -20px; right: -20px; font-size: 8rem;
+            color: var(--accent); opacity: 0.02; transform: rotate(-15deg); transition: 0.8s var(--ease-butter);
+        }
+        .card:hover .stat-watermark { opacity: 0.1; transform: rotate(0deg) scale(1.1); }
+
+        /* --- Progress Bars --- */
+        .bar-track { height: 4px; width: 100%; background: #111; border-radius: 10px; margin-top: 24px; }
+        .bar-fill { height: 100%; background: var(--accent); width: 0; border-radius: 10px; transition: width 2s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* --- Search Bar --- */
+        .search-input {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            padding: 12px 24px; border-radius: 100px; color: #fff; width: 240px;
+            transition: 0.5s var(--ease-butter); font-size: 13px; outline: none;
+        }
+        .search-input:focus { width: 380px; border-color: var(--accent); background: rgba(70, 121, 131, 0.05); }
+
+        /* --- Modal Butter --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px);
+            z-index: 2000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.5s var(--ease-butter);
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-box {
+            background: #0a0a0a; border: 1px solid #1a1a1a; padding: 48px; border-radius: 32px;
+            width: 90%; max-width: 480px; transform: scale(0.9) translateY(20px); transition: 0.5s var(--ease-butter);
+        }
+        .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
+
+        /* --- Breathing Room --- */
+        .spacer { height: 400px; pointer-events: none; }
+    </style>
+</head>
+<body onload="init()">
+
+    <div class="bg-grid"></div>
+
+    <nav class="nav-fixed">
+        <div class="nav-container">
+            <div class="nav-logo">nordicalls<span class="text-[#467983]">.</span></div>
+            <div class="nav-tabs">
+                <div id="nav-pill"></div>
+                <button onclick="tab('home', this)" id="default-btn" class="nav-btn active">home</button>
+                <button onclick="tab('cmds', this)" class="nav-btn">commands</button>
+                <button onclick="tab('upds', this)" class="nav-btn">updates</button>
+                <button onclick="tab('stat', this)" class="nav-btn">status</button>
+                <button onclick="tab('term', this)" class="nav-btn">terms</button>
+            </div>
+            <div class="nav-socials">
+                <button onclick="exitConfirm('https://discord.gg/Z3ygF3vnur')" class="social-btn"><i class="fa-brands fa-discord"></i></button>
+                <button onclick="exitConfirm('https://youtube.com/@nordicalls')" class="social-btn"><i class="fa-brands fa-youtube"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-container">
+        
+        <div id="home-tab" class="page-wrap active">
+            <div class="text-center mb-24">
+                <h1 class="text-7xl md:text-9xl font-black text-white tracking-tighter mb-8 leading-none">Limitless<br/><span class="text-gray-700">Performance.</span></h1>
+                <p class="text-gray-500 text-lg max-w-2xl mx-auto">High quality videos, server management, and so much more.</p>
+            </div>
+
+            <div class="grid-master mb-32">
+                <div class="card">
+                    <i class="fa-solid fa-server stat-watermark"></i>
+                    <div class="stat-num count" data-target="175">0</div>
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-[#467983] mt-2">Active Members</div>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-bolt stat-watermark"></i>
+                    <div class="stat-num count" data-target="29669">0</div>
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-[#467983] mt-2">Views</div>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-shield-halved stat-watermark"></i>
+                    <div class="stat-num count" data-target="99.98">0</div>
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-[#467983] mt-2">trim.gg Uptime</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-16 text-xs text-gray-500 leading-relaxed text-justify px-4">
+                <div>
+                    <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-[10px] border-l-2 border-[#467983] pl-4">community</h4>
+                    <p class="mb-4">nordicalls focuses on building a safe, friendly, and welcoming community. if you every feel unsafe in our server, one of our comment sections, or any partnered servers, please create a ticket immediately. we prioritise member safety over everything else.</p>
+                    <p>our powerful moderation tools help prevent any attacks or hate speech before it spreads. the quicker you inform or grab the attention of a moderator, the quicker it can be resolved with ease.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-[10px] border-l-2 border-[#467983] pl-4">polls</h4>
+                    <p class="mb-4">we incorporate our server members in design and update polls, so that everyone can get a say in what happens at nordicalls.</p>
+                    <p>polls are always at a base level. if we believe a decision should be made by community oversight, we will keep that poll and discussion about that poll private until revealed to the public.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-[10px] border-l-2 border-[#467983] pl-4">terms</h4>
+                    <p class="mb-4">failure to follow our terms can lead to a removal from the server or worse. our terms can update regularly and we are not required to inform members of our terms. external action taken against nordicalls can result in punishment via the nordicalls server if we deem it necessary.</p>
+                </div>
+            </div>
+            <div class="spacer"></div>
+        </div>
+
+        <div id="cmds-tab" class="page-wrap">
+            <div class="flex justify-between items-end mb-16 px-4">
+                <h2 class="text-6xl font-black text-white tracking-tighter">Library</h2>
+                <input type="text" id="cmd-search" class="search-input" placeholder="Search commands...">
+            </div>
+            <div id="cmd-grid" class="grid-master"></div>
+            <div class="spacer"></div>
+        </div>
+
+        <div id="upds-tab" class="page-wrap">
+            <h2 class="text-6xl font-black text-white tracking-tighter mb-16 px-4">Changelog</h2>
+            <div id="upd-grid" class="grid-master"></div>
+            <div class="spacer"></div>
+        </div>
+
+        <div id="stat-tab" class="page-wrap">
+            <h2 class="text-6xl font-black text-white tracking-tighter mb-16 px-4">Creator Status</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="card md:col-span-2 flex items-center p-6">
+                    <img src="https://lanyard.cnrad.dev/api/817410231088578610?theme=dark" class="w-full rounded-2xl">
+                </div>
+                <div class="card flex flex-col justify-center">
+                    <span class="card-tag">Info</span>
+                    <h3 class="text-white font-bold text-2xl mb-2">Systems Operational</h3>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                        <span class="text-xs text-gray-500 uppercase tracking-widest font-bold">Videos are up and available to watch.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-4 mb-8">
+                <span class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-600">Video Progress</span>
+            </div>
+            <div id="stat-grid" class="grid-master"></div>
+            <div class="spacer"></div>
+        </div>
+
+        <div id="term-tab" class="page-wrap">
+            <h2 class="text-6xl font-black text-white tracking-tighter mb-16 px-4">Regulations</h2>
+            <div id="term-grid" class="grid-master"></div>
+            <div class="spacer"></div>
+        </div>
+
+    </main>
+
+    <div id="info-modal" class="modal-overlay" onclick="closeM('info-modal')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div id="modal-content"></div>
+            <button onclick="closeM('info-modal')" class="mt-12 w-full py-4 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition">Close</button>
+        </div>
+    </div>
+
+    <div id="exit-modal" class="modal-overlay" onclick="closeM('exit-modal')">
+        <div class="modal-box text-center" onclick="event.stopPropagation()">
+            <div class="w-16 h-16 bg-[#467983]/10 rounded-full flex items-center justify-center mx-auto mb-8">
+                <i class="fa-solid fa-arrow-up-right-from-square text-[#467983] text-2xl"></i>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-4">Redirecting</h3>
+            <p class="text-gray-500 text-sm mb-12 leading-relaxed">You are requesting access to an external domain. Nordicalls does not manage third-party security.</p>
+            <div class="flex gap-4">
+                <button onclick="closeM('exit-modal')" class="flex-1 py-4 border border-white/5 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition">Cancel</button>
+                <button id="confirm-btn" class="flex-1 py-4 bg-white text-black rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition">Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const store = {
+            cmds: [
+                {t: 'Booster', d: 'booster commands help setup custom roles and other perks', g: 'Booster'},
+                {t: 'Owner', d: 'edit roles, manage the server, and much more', g: 'Owner'},
+                {t: 'Admins', d: 'channel locking, security, and safety features', g: 'Admins'},
+                {t: 'Punish', d: 'sanction history + moderation tools', g: 'Mods'},
+                {t: 'Economy', d: 'earn rewards, and have some fun with the economy', g: 'Public'},
+                {t: 'Music', d: 'hop in a vc and get some high-quality tunes going for free!', g: 'Public'},
+                {t: 'BP', d: 'deep diver into information about bp, server stats and more', g: 'Public'}
+            ],
+            upds: [
+                {t: 'Economy V1', d: 'flex your nordbucks in nordicalls with the new economy feature. this is a beta feature and can contain bugs.', g: 'Beta'},
+                {t: 'Website', d: 'you are on the website right now! private updates and so much more comes all via this website.', g: 'Stable'},
+                {t: 'BP Trackers', d: 'our 24/7 commands now available in our discord server are free for everyone to use', g: 'Stable'}
+            ],
+            stats: [
+                {t: 'On the Beat 2', d: 'Uploading & Awaiting Approval', p: 65, g: 'Media'},
+                {t: 'Parking Warden Madness', d: 'Scheduling Release', p: 100, g: 'Media'}
+            ],
+            terms: [
+                {t: 'Fair Usage', d: 'Spamming commands can and will result in a timeout as it rate-limits the bot', g: 'Usage'},
+                { t: 'Mini-Modding / Backseat Moderating', d: 'Minimodding is not allowed. Do not enforce rules, warn users, threaten punishments, or speak on behalf of staff. Leave all moderation to trained staff to avoid confusion and misuse.', g: 'Moderation' },
+                { t: 'Raids, Brigading & Disruption', d: 'Raiding, spam attacks, mass mentions, or coordinated disruption are strictly prohibited. Encouraging or organising raids, overwhelming channels, staff, or bots, or evading punishment via alts, VPNs, or rejoining will result in action.', g: 'Safety' },
+                { t: 'Botting, Self-Bots & Automation', d: 'Self-bots, user bots, scripts, macros, automation, or abusing server bots are prohibited. Bypassing moderation, cooldowns, or restrictions using tools is not allowed.', g: 'Automation' },
+                { t: 'Videos, Recordings & External Content', d: 'Posting videos, clips, screenshots, or recordings for harassment, drama, misinformation, or without consent is prohibited. Content taken out of context to target members or staff may result in punishment.', g: 'Content' },
+                { t: 'Privacy & Safety', d: 'Do not share personal or private information without consent. Doxxing, threats of doxxing, or intimidation will result in an immediate ban.', g: 'Safety' },
+                { t: 'Exploits, Loopholes & Bad-Faith Behaviour', d: 'Exploiting loopholes, acting in bad faith, trolling, or intentionally disrupting the server is not allowed and may be punished even if not explicitly listed.', g: 'Conduct' },
+                { t: 'Moderation & Enforcement', d: 'Staff may issue warnings, mutes, kicks, bans, or permanent bans at their discretion. Punishments may escalate based on severity or repetition; appeals are not guaranteed.', g: 'Moderation' },
+                { t: 'Updates & Changes', d: 'These Terms may be updated at any time. Continued participation in the server implies acceptance of any changes.', g: 'Policy' },
+                {t: 'Demeanour', d: 'Harassment, hate speech, threats, discrimination, or targeted abuse are against the regulations and are strictly prohibited. These will issue in a appropriate sanction decided by the staff member handling the situation, please refrain from this kind of behaviour as it is not acceptable for usage in this server and it will not be tolerated by any means.', g: 'Moderation'},
+                {t: 'Punishments', d: 'You will be issued punishments when any offence has been committed; these are issued by moderators and above, with the lowest being a Warning for minor violations, followed by a Timeout for more serious offences (considered a final warning), then a Kick for a first removal offence as an alert before potential banning, and finally a Ban, the most severe sanction, resulting in permanent removal for major rule breaches or repeated violations.', g: 'Moderation'},
+                {t: 'Data Retention', d: 'We are compliant to GDPR regulations. Create a ticket to clear your Data.', g: 'Privacy'}
+            ]
+        };
+
+        function init() {
+            movePill(document.getElementById('default-btn'));
+            render();
+            animateCounters();
+        }
+
+        function tab(id, el) {
+            movePill(el);
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+
+            const target = document.getElementById(id + '-tab');
+            if(target.classList.contains('active')) return;
+
+            document.querySelectorAll('.page-wrap').forEach(p => p.classList.remove('active'));
+            target.classList.add('active');
+
+            if(id === 'home') animateCounters();
+            if(id === 'stat') animateBars();
+            
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function movePill(el) {
+            const pill = document.getElementById('nav-pill');
+            pill.style.width = el.offsetWidth + 'px';
+            pill.style.left = el.offsetLeft + 'px';
+        }
+
+        function render() {
+            const cardWrap = (item) => `
+                <div class="card" onclick="openI('${item.t}','${item.d}','${item.g}')">
+                    <span class="card-tag">${item.g}</span>
+                    <h3 class="text-2xl font-bold text-white mb-2 font-mono tracking-tight">${item.t}</h3>
+                    <p class="text-gray-500 text-xs leading-relaxed">${item.d}</p>
+                </div>`;
+
+            const statWrap = (item) => `
+                <div class="card">
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="font-bold text-white text-sm">${item.t}</h3>
+                        <span class="text-[10px] font-black text-[#467983]">${item.p}%</span>
+                    </div>
+                    <p class="text-gray-500 text-[10px]">${item.d}</p>
+                    <div class="bar-track"><div class="bar-fill" data-w="${item.p}%"></div></div>
+                </div>`;
+
+            document.getElementById('cmd-grid').innerHTML = store.cmds.map(cardWrap).join('');
+            document.getElementById('upd-grid').innerHTML = store.upds.map(cardWrap).join('');
+            document.getElementById('stat-grid').innerHTML = store.stats.map(statWrap).join('');
+            document.getElementById('term-grid').innerHTML = store.terms.map(cardWrap).join('');
+        }
+
+        function openI(t, d, g) {
+            document.getElementById('modal-content').innerHTML = `
+                <span class="card-tag">${g}</span>
+                <h2 class="text-4xl font-black text-white mt-2 mb-6 tracking-tight">${t}</h2>
+                <p class="text-gray-400 text-sm leading-relaxed">${d}</p>
+                <div class="h-px w-full bg-white/5 my-8"></div>
+                <p class="text-gray-600 text-xs">Nordicalls. This website was last updated 17.01</p>
+            `;
+            document.getElementById('info-modal').classList.add('open');
+        }
+
+        function exitConfirm(url) {
+            document.getElementById('confirm-btn').onclick = () => { window.open(url, '_blank'); closeM('exit-modal'); };
+            document.getElementById('exit-modal').classList.add('open');
+        }
+
+        function closeM(id) { document.getElementById(id).classList.remove('open'); }
+
+        function animateCounters() {
+            document.querySelectorAll('.count').forEach(el => {
+                const target = +el.dataset.target;
+                let c = 0;
+                const up = () => {
+                    c += target / 60;
+                    if(c < target) { el.innerText = Math.floor(c); requestAnimationFrame(up); }
+                    else el.innerText = target;
+                };
+                up();
+            });
+        }
+
+        function animateBars() {
+            setTimeout(() => {
+                document.querySelectorAll('.bar-fill').forEach(b => b.style.width = b.dataset.w);
+            }, 100);
+        }
+
+        document.getElementById('cmd-search').oninput = (e) => {
+            const q = e.target.value.toLowerCase();
+            document.querySelectorAll('#cmd-grid .card').forEach(c => {
+                c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none';
+            });
+        };
+    </script>
+</body>
+</html>
