@@ -287,6 +287,20 @@
         </div>
     </div>
 
+    <div id="mobile-modal" class="modal-overlay" onclick="closeM('mobile-modal')">
+    <div class="modal-box text-center" onclick="event.stopPropagation()">
+        <div class="w-16 h-16 bg-[#467983]/10 rounded-full flex items-center justify-center mx-auto mb-8">
+            <i class="fa-solid fa-mobile-screen-button text-[#467983] text-2xl"></i>
+        </div>
+        <h3 class="text-3xl font-bold text-white mb-4">Mobile Detected</h3>
+        <p class="text-gray-500 text-sm mb-12 leading-relaxed">We noticed you're on a mobile device. Would you like to switch to our mobile-optimized experience?</p>
+        <div class="flex flex-col gap-3">
+            <button onclick="redirectToMobile()" class="w-full py-4 bg-white text-black rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition">Go to Mobile Site</button>
+            <button onclick="dismissMobileModal()" class="w-full py-4 border border-white/5 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition">Continue Anyway</button>
+        </div>
+    </div>
+    </div>
+    
     <script>
         const store = {
             cmds: [
@@ -420,7 +434,41 @@
                 c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none';
             });
         };
+
+        function init() {
+    try {
+        movePill(document.getElementById('default-btn'));
+        render();
+        animateCounters();
+        // Only run mobile check if the modal exists to prevent errors
+        if(document.getElementById('mobile-modal')) {
+            checkMobile();
+        }
+    } catch (e) {
+        console.error("Initialization error:", e);
+    }
+    }
+
+    function checkMobile() {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+    const hasSeenNotice = sessionStorage.getItem('mobileNoticeDismissed');
+
+    if (isMobile && !hasSeenNotice) {
+        document.getElementById('mobile-modal').classList.add('open');
+    }
+    }
+
+    function redirectToMobile() {
+        const currentUrl = window.location.href.split(/[?#]/)[0].replace(/\/$/, ""); 
+        window.location.href = currentUrl + "/mobile";
+    }
+
+    function dismissMobileModal() {
+        sessionStorage.setItem('mobileNoticeDismissed', 'true');
+        closeM('mobile-modal');
+    }
     </script>
 </body>
 </html>
+
 
