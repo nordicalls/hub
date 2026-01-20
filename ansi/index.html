@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nordicalls. ansi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <link rel="icon" type="image/png" href="https://www.transparentpng.com/download/emoticons/thinking-blue-emoticons-hd-transparent-1b3uLJ.png">
+    
+    <!-- EMBEDS -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nordicalls.xyz">
+    <meta property="og:title" content="nordicalls">
+    <meta property="og:description" content="Our asci formatter for discord.">
+    <meta name="theme-color" content="#030303">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="nordicalls">
+    <meta name="twitter:description" content="Our asci formatter for discord.">
+    <meta name="twitter:image" content="https://bluemoji.io/cdn-proxy/646218c67da47160c64a84d5/671ff8b58b0b4715228b0c1f_99.png">
+
+    <style>
+        :root {
+            --accent: #467983;
+            --bg: #050505;
+            --surface: #0a0a0a;
+            --border: rgba(255, 255, 255, 0.06);
+            --ease-butter: cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* --- CUSTOM SCROLLBAR (Global) --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1a1a1a;
+            border-radius: 10px;
+            border: 2px solid var(--bg);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Firefox Support */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #1a1a1a var(--bg);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #d4d4d4;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .bg-grid {
+            position: fixed; inset: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black, transparent 80%);
+            z-index: -1; pointer-events: none;
+        }
+
+        /* --- STACKING FIX --- */
+        .config-col { position: relative; z-index: 50; }
+        .output-col { position: relative; z-index: 10; }
+
+        /* --- Custom Dropdown --- */
+        .dropdown-container { position: relative; width: 100%; z-index: 100; }
+        .dropdown-selected {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 20px;
+            cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: 0.3s var(--ease-butter);
+            font-size: 14px; color: white;
+        }
+        .dropdown-selected:hover { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+        
+        .dropdown-list {
+            position: absolute; 
+            top: calc(100% + 12px); 
+            left: 0; 
+            width: 100%;
+            background: #0f0f0f; 
+            border: 1px solid #1a1a1a;
+            border-radius: 16px; 
+            overflow-y: auto;
+            max-height: 240px;
+            z-index: 9999 !important;
+            opacity: 0; 
+            transform: translateY(10px); 
+            pointer-events: none;
+            transition: 0.3s var(--ease-butter);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+        }
+        .dropdown-container.open .dropdown-list { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+        /* --- DROPDOWN SCROLLBAR --- */
+        .dropdown-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .dropdown-list::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+        
+        .dropdown-item {
+            padding: 12px 20px; cursor: pointer; font-size: 13px;
+            transition: 0.2s; display: flex; align-items: center; gap: 10px;
+        }
+        .dropdown-item:hover { background: rgba(70, 121, 131, 0.2); color: var(--accent); }
+        .color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+        /* --- Cards --- */
+        .card {
+            background: var(--surface); 
+            border: 1px solid var(--border);
+            border-radius: 24px; 
+            padding: 32px;
+            opacity: 0; transform: translateY(20px);
+            animation: cardFadeIn 0.8s var(--ease-butter) forwards;
+            position: relative;
+        }
+        .card:nth-child(1) { animation-delay: 0.1s; z-index: 60; }
+        .card:nth-child(2) { animation-delay: 0.2s; z-index: 50; }
+
+        @keyframes cardFadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .discord-preview {
+            background: #313338; border-radius: 12px;
+            padding: 16px; font-family: 'JetBrains Mono', monospace;
+            font-size: 14px; line-height: 1.5; min-height: 60px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+            color: #dcdee1;
+        }
+
+        .n-input {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            border-radius: 16px; color: white; padding: 14px 20px;
+            width: 100%; outline: none; transition: 0.3s var(--ease-butter);
+        }
+        .n-input:focus { border-color: var(--accent); background: rgba(70, 121, 131, 0.05); }
+
+        .copy-btn {
+            background: white; color: black; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            font-size: 11px; padding: 16px; border-radius: 16px;
+            width: 100%; transition: 0.4s var(--ease-butter); cursor: pointer;
+        }
+        .copy-btn:hover { background: var(--accent); color: white; transform: translateY(-3px); }
+
+        .tag { font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 8px; }
+        
+        .social-link {
+            color: #555; transition: 0.3s; font-size: 18px;
+        }
+        .social-link:hover { color: var(--accent); transform: scale(1.1); }
+    </style>
+</head>
+<body onclick="closeAllDropdowns()">
+
+    <div class="bg-grid"></div>
+
+    <div class="max-w-6xl mx-auto px-6 pt-12 flex justify-between items-center">
+        <div class="text-2xl font-black text-white">nordicalls<span class="text-[#467983]">.</span></div>
+        <div class="flex gap-6">
+            <a href="https://discord.gg/Z3ygF3vnur" target="_blank" class="social-link"><i class="fa-brands fa-discord"></i></a>
+            <a href="https://youtube.com/@nordicalls" target="_blank" class="social-link"><i class="fa-brands fa-youtube"></i></a>
+        </div>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <div class="mb-16">
+            <span class="tag">Text Formatting Engine</span>
+            <h1 class="text-6xl md:text-8xl font-black text-white tracking-tighter leading-none mb-4">ANSI<br/><span class="text-gray-700">Studio.</span></h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <div class="lg:col-span-7 space-y-6 config-col">
+                <div class="card">
+                    <span class="tag">Content</span>
+                    <input type="text" id="ansiText" class="n-input mb-8" value="nordicalls on top!" placeholder="Enter text here...">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="dropdown-container" id="fgDropdown">
+                            <span class="tag">Text Color</span>
+                            <div class="dropdown-selected" onclick="toggleDropdown(event, 'fgDropdown')">
+                                <span class="selected-val">White</span>
+                                <i class="fa-solid fa-chevron-down text-[10px] opacity-40"></i>
+                            </div>
+                            <div class="dropdown-list" id="fgList"></div>
+                        </div>
+
+                        <div class="dropdown-container" id="bgDropdown">
+                            <span class="tag">Background</span>
+                            <div class="dropdown-selected" onclick="toggleDropdown(event, 'bgDropdown')">
+                                <span class="selected-val">None</span>
+                                <i class="fa-solid fa-chevron-down text-[10px] opacity-40"></i>
+                            </div>
+                            <div class="dropdown-list" id="bgList"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 mt-10">
+                        <button onclick="toggleFormat('bold')" id="btn-bold" class="px-5 py-3 border border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all">Bold</button>
+                        <button onclick="toggleFormat('underline')" id="btn-underline" class="px-5 py-3 border border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all">Underline</button>
+                        <button onclick="toggleFormat('fgBright')" id="btn-fgBright" class="px-5 py-3 border border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all">Bright Text</button>
+                        <button onclick="toggleFormat('bgBright')" id="btn-bgBright" class="px-5 py-3 border border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all">Bright BG</button>
+                    </div>
+                </div>
+
+                <div class="card" style="z-index: 40;">
+                    <span class="tag">Discord Preview</span>
+                    <div class="discord-preview mt-4">
+                        <span id="visual-render"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 space-y-6 output-col">
+                <div class="card flex flex-col">
+                    <span class="tag">ANSI Code</span>
+                    <div class="bg-black/60 border border-white/5 rounded-2xl p-6 font-mono text-[12px] text-gray-500 break-all mb-8 leading-relaxed" id="raw-output"></div>
+                    <button onclick="copyAnsi()" id="copy-btn" class="copy-btn">
+                        <i class="fa-solid fa-copy mr-2"></i> Copy Code
+                    </button>
+                </div>
+
+                <a href="https://discord.gg/Z3ygF3vnur" target="_blank" class="card block hover:border-[#467983]/50 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-[#467983] rounded-2xl flex items-center justify-center text-white text-xl">
+                            <i class="fa-brands fa-discord"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold text-sm">Join Nordicalls</h4>
+                            <p class="text-gray-500 text-[11px]">Connect with 170+ members.</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square ml-auto text-gray-700 text-xs"></i>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const colors = [
+            { name: 'Black', code: '30', hex: '#1e1f22' },
+            { name: 'Red', code: '31', hex: '#ed4245' },
+            { name: 'Green', code: '32', hex: '#57f287' },
+            { name: 'Yellow', code: '33', hex: '#fee75c' },
+            { name: 'Blue', code: '34', hex: '#3498db' },
+            { name: 'Magenta', code: '35', hex: '#9b59b6' },
+            { name: 'Cyan', code: '36', hex: '#1abc9c' },
+            { name: 'White', code: '37', hex: '#ffffff' }
+        ];
+
+        let state = {
+            text: "nordicalls on top!",
+            fg: "37",
+            fgName: "White",
+            bg: "none",
+            bgName: "None",
+            bold: false,
+            underline: false,
+            fgBright: false,
+            bgBright: false
+        };
+
+        function initDropdowns() {
+            const fgList = document.getElementById('fgList');
+            const bgList = document.getElementById('bgList');
+
+            colors.forEach(c => {
+                const fgItem = document.createElement('div');
+                fgItem.className = 'dropdown-item';
+                fgItem.innerHTML = `<div class="color-dot" style="background:${c.hex}"></div>${c.name}`;
+                fgItem.onclick = (e) => { e.stopPropagation(); selectOption('fg', c.code, c.name); };
+                fgList.appendChild(fgItem);
+
+                const bgItem = document.createElement('div');
+                bgItem.className = 'dropdown-item';
+                bgItem.innerHTML = `<div class="color-dot" style="background:${c.hex}"></div>${c.name}`;
+                bgItem.onclick = (e) => { e.stopPropagation(); selectOption('bg', (parseInt(c.code)+10).toString(), c.name); };
+                bgList.appendChild(bgItem);
+            });
+
+            const noneItem = document.createElement('div');
+            noneItem.className = 'dropdown-item';
+            noneItem.innerHTML = `<div class="color-dot border border-white/20"></div>None`;
+            noneItem.onclick = (e) => { e.stopPropagation(); selectOption('bg', 'none', 'None'); };
+            bgList.prepend(noneItem);
+        }
+
+        function toggleDropdown(e, id) {
+            e.stopPropagation();
+            const el = document.getElementById(id);
+            const isOpen = el.classList.contains('open');
+            closeAllDropdowns();
+            if (!isOpen) el.classList.add('open');
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-container').forEach(d => d.classList.remove('open'));
+        }
+
+        function selectOption(type, code, name) {
+            state[type] = code;
+            state[type + 'Name'] = name;
+            document.querySelector(`#${type}Dropdown .selected-val`).innerText = name;
+            closeAllDropdowns();
+            update();
+        }
+
+        function toggleFormat(key) {
+            state[key] = !state[key];
+            const btn = document.getElementById('btn-' + key);
+            if (state[key]) {
+                btn.style.borderColor = 'var(--accent)';
+                btn.style.color = 'var(--accent)';
+                btn.style.background = 'rgba(70, 121, 131, 0.1)';
+            } else {
+                btn.style.borderColor = '';
+                btn.style.color = '';
+                btn.style.background = '';
+            }
+            update();
+        }
+
+        function update() {
+            state.text = document.getElementById('ansiText').value;
+            let codes = [];
+            if (state.bold) codes.push('1');
+            if (state.underline) codes.push('4');
+
+            let fgVal = parseInt(state.fg);
+            if (state.fgBright) fgVal += 60;
+            
+            if (state.bg !== 'none') {
+                let bgVal = parseInt(state.bg);
+                if (state.bgBright) bgVal += 60;
+                codes.push(bgVal);
+            }
+            codes.push(fgVal);
+
+            const esc = '\u001b';
+            const raw = '```ansi\n' + esc + '[' + codes.join(';') + 'm' + state.text + esc + '[0m\n```';
+            document.getElementById('raw-output').innerText = raw;
+            renderVisual();
+        }
+
+        function renderVisual() {
+            const render = document.getElementById('visual-render');
+            render.innerText = state.text;
+            render.style.fontWeight = state.bold ? '800' : '400';
+            render.style.textDecoration = state.underline ? 'underline' : 'none';
+            
+            const fgColorObj = colors.find(c => c.code === state.fg);
+            render.style.color = fgColorObj ? fgColorObj.hex : '#ffffff';
+            render.style.filter = state.fgBright ? 'brightness(1.5)' : 'none';
+
+            if (state.bg === 'none') {
+                render.style.background = 'transparent';
+                render.style.padding = '0';
+            } else {
+                const bgColorObj = colors.find(c => (parseInt(c.code)+10).toString() === state.bg);
+                render.style.background = bgColorObj ? bgColorObj.hex : 'transparent';
+                render.style.padding = '2px 6px';
+                render.style.borderRadius = '4px';
+                if (state.bgBright) render.style.filter = 'brightness(1.2)';
+            }
+        }
+
+        function copyAnsi() {
+            const text = document.getElementById('raw-output').innerText;
+            navigator.clipboard.writeText(text);
+            const btn = document.getElementById('copy-btn');
+            btn.innerText = "COPIED TO CLIPBOARD!";
+            setTimeout(() => btn.innerHTML = '<i class="fa-solid fa-copy mr-2"></i> Copy Code', 2000);
+        }
+
+        document.getElementById('ansiText').oninput = update;
+        initDropdowns();
+        update();
+    </script>
+</body>
+</html>
