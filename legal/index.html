@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nordicalls. legal</title>
+    <style>
+        :root {
+            --bg: #0f111a;
+            --card: #161925;
+            --accent: #00a2ff;
+            --text: #e0e0e0;
+            --text-muted: #94a3b8;
+            --border: rgba(255,255,255,0.05);
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card);
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .header { border-bottom: 1px solid var(--border); margin-bottom: 30px; padding-bottom: 20px; }
+        h1 { font-size: 1.5rem; margin: 0; color: #fff; }
+        h2 { font-size: 1.1rem; color: var(--accent); margin-top: 30px; }
+        p, li { font-size: 0.95rem; color: var(--text-muted); }
+        .tab-nav { display: flex; gap: 20px; margin-bottom: 20px; }
+        .tab-link { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; border-bottom: 2px solid transparent; padding-bottom: 5px; }
+        .tab-link.active { color: var(--accent); border-color: var(--accent); }
+        .content { display: none; }
+        .content.active { display: block; }
+        .footer { margin-top: 40px; font-size: 0.8rem; color: #444; text-align: center; }
+        code { background: rgba(255,255,255,0.05); padding: 2px 5px; border-radius: 4px; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Nordicalls Legal</h1>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Transparency for Discord & Roblox Users</p>
+    </div>
+
+    <div class="tab-nav">
+        <span class="tab-link active" onclick="showTab('privacy')">Privacy Policy</span>
+        <span class="tab-link" onclick="showTab('terms')">Terms of Service</span>
+    </div>
+
+    <div id="privacy" class="content active">
+        <h2>How we use your data</h2>
+        <p>Nordicalls is a verification tool. We only collect what is necessary to link your Discord account to your Roblox account.</p>
+        
+        <h3>1. Data Collected</h3>
+        <p>When you authorize via Roblox OAuth2, we receive:</p>
+        <ul>
+            <li>Your <code>Roblox UserID</code> (to identify who you are).</li>
+            <li>Your <code>Username</code> and <code>Display Name</code>.</li>
+        </ul>
+        
+        <h3>2. Purpose</h3>
+        <p>This data is used exclusively to assign roles in linked Discord servers. We do not track your activity on Roblox, and we never see your password.</p>
+
+        <h3>3. Data Deletion</h3>
+        <p>You are in control. To wipe your data from Nordicalls:</p>
+        <ul>
+            <li>Revoke access in your <strong>Roblox Settings > Connected Apps</strong>.</li>
+            <li>Or, email <code>support@nordicalls.com</code> with your UserID for manual removal.</li>
+        </ul>
+    </div>
+
+    <div id="terms" class="content">
+        <h2>Rules of Use</h2>
+        <p>By using Nordicalls, you agree to follow both the <strong>Roblox Community Standards</strong> and the <strong>Discord Terms of Service</strong>.</p>
+
+        <h3>1. Verification Use</h3>
+        <p>Nordicalls is provided for server verification. You agree not to use this service to impersonate others or attempt to bypass server security measures.</p>
+
+        <h3>2. Service Availability</h3>
+        <p>Since we rely on Roblox and Discord APIs, we cannot guarantee 100% uptime. We are not responsible for delays in role assignment caused by API outages.</p>
+
+        <h3>3. Disclaimer</h3>
+        <p>Nordicalls is a third-party tool and is <strong>not affiliated with Roblox Corp or Discord Inc.</strong> We are an independent developer project.</p>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Nordicalls | Not affiliated with Roblox or Discord.
+    </div>
+</div>
+
+<script>
+    function showTab(id) {
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.target.classList.add('active');
+    }
+</script>
+
+</body>
+</html>
